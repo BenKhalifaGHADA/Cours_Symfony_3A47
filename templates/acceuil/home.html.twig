@@ -1,0 +1,35 @@
+Hello c'est un exemple
+{{ param }}
+{% set A="3A" %}
+{{ A }}
+{# ceci un commentaire #}
+{% set x=5 %}
+<br>
+La valeur de x={{ x }}
+<br>
+
+{#  {% set tab2=['cle'=>'valeur','cle2'=>'valeur2'] %}#}
+
+{% if 'Fabien' starts with 'a' %}
+    commence par a
+{% else%}
+    Cette chaîne ne commence par la lettre a
+{% endif %}
+<br>
+{% if 'Fabien' ends with 'n' %}
+    Finis par n
+{% endif %}
+
+{% set tab=[1,2,3] %}
+<br>
+{% for i in tab %}
+   {{ i }}
+{% endfor %}
+
+{{ "hello"|upper }}
+{% set a=5 %}
+{{ a }}
+<a href="{{ path('app_acceuil') }}">Home</a>
+<img src="{{ asset ('images/Taha_Hussein.jpg') }}"/>
+
+

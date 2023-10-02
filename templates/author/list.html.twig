@@ -1,0 +1,19 @@
+{% for author in authors %}
+
+    <li>{{ author.username|upper}} > <a href="{{ path('show', {'id': author.id}) }}">details</a> détails</a></li>
+    <li>{{author.id}}</li>
+    <li>{{ author.email }}</li>
+
+    {%else %}
+    <p>c'est un tableau vide</p>
+{% endfor %}
+<br>
+le nombre des auteurs est : {{ authors|length }}
+{% set x=0 %}
+<ul>
+    {% for author in authors %}
+    <li>{{ author.nb_books }}</li>
+    {% set x =x+author.nb_books %}
+    {% endfor %}
+</ul>
+nb books : {{ x }}

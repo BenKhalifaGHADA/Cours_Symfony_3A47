@@ -2,7 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\Author;
+use App\Form\AuthorType;
+use App\Repository\AuthorRepository;
+
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -12,15 +20,15 @@ class AuthorController extends AbstractController
 
 
         array(
-            'id' => 1, 'picture' => '/images/Victor-Hugo.jpg',
+            'id' => 1, 'picture' => 'images/victor-hugo.jpg',
             'username' => ' Victor Hugo', 'email' => 'victor.hugo@gmail.com ', 'nb_books' => 100
         ),
         array(
-            'id' => 2, 'picture' => '/images/william-shakespeare.jpg',
+            'id' => 2, 'picture' => 'images/william-shakespeare.jpg',
             'username' => ' William Shakespeare', 'email' => ' william.shakespeare@gmail.com', 'nb_books' => 200
         ),
         array(
-            'id' => 3, 'picture' => '/images/Taha_Hussein.jpg',
+            'id' => 3, 'picture' => 'images/Taha_Hussein.jpg',
             'username' => ' Taha Hussein', 'email' => 'taha.hussein@gmail.com', 'nb_books' => 300
         ),
     );
@@ -66,6 +74,84 @@ class AuthorController extends AbstractController
         ]);
     }
 
+    #[Route('/listAuthor', name: 'list_author')]
+    public function listAuthor(AuthorRepository $authorepository): Response
+    {
+        $list=$authorepository->findAll();
+        return $this->render('author/listAuthor.html.twig', [
+            'authors' => $list,
+        ]);
+    }
 
+
+    #[Route('/deleteauthor/{id}', name: 'author_delete')]
+    public function deleteAuthor(Request $request, $id, ManagerRegistry $manager, AuthorRepository $authorepository): Response
+    {
+        //- Chercher un author selon son ID (Repository)  findBy($id)  /find($id)
+        //- Suppression (EM) ( remove() & flush())
+
+        //chercher l'auteur selon son id
+        $author = $authorepository->find($id);
+
+        $em = $manager->getManager();
+        $em->remove($author);
+        $em->flush();
+
+        return $this->redirectToRoute('list_author');
+    }
+
+    #[Route('showA/{id}', name: 'showA')]
+    public function showA($id,AuthorRepository $repo ){
+       //- Chercher l’auteur selon son ID (Repositroy)  findby($id)/find($id)
+        $author=$repo->find($id);
+        return $this->render('author/showA.html.twig',['author'=>$author]);
+    }
+
+    #[Route('/addS', name: 'AddS')]
+    public function AddStatic(ManagerRegistry $manager){
+        // Ajout (EM)   (persist() &flush())
+        $author=new Author();
+        $author->setUsername('testStactic');
+        $author->setEmail('test@gmail.com');
+        $em=$manager->getManager();
+        $em->persist($author);
+        $em->flush();
+        return new Response("Author added succesfully");
+
+    }
+
+    #[Route('/add', name: 'add')]
+    public function add(Request $request,ManagerRegistry $manager){
+        $author=new Author();
+        $form=$this->createForm(AuthorType::class,$author);
+        $form->add('add',SubmitType::class);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted()){
+            $em=$manager->getManager();
+            $em->persist($author);
+            $em->flush();
+            return $this->redirectToRoute('list_author');
+        }
+
+       return $this->render('author/add.html.twig',['form'=>$form->createView()]);
+
+    }
+
+    #[Route('/update/{id}', name: 'update')]
+    public function update($id,AuthorRepository $repo,ManagerRegistry $manager, Request $req){
+        $authorOb=$repo->find($id);
+        $form=$this->createForm(AuthorType::class,$authorOb);
+        $form->add('Update',SubmitType::class);
+        $form->handleRequest($req);
+        if($form->isSubmitted()){
+            $em=$manager->getManager();
+            $em->persist($authorOb);
+            $em->flush();
+            return $this->redirectToRoute('list_author');
+        }
+
+        return $this->render('author/update.html.twig',['form'=>$form->createView()]);
+    }
 
 }

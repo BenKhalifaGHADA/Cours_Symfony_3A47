@@ -1,6 +1,6 @@
 {% for author in authors %}
 
-    <li>{{ author.username|upper}} > <a href="{{ path('show', {'id': author.id}) }}">details</a> détails</a></li>
+    <li>{{ author.username|upper}} > <a href="{{ path('show', {'id': author.id}) }}">details</a></li>
     <li>{{author.id}}</li>
     <li>{{ author.email }}</li>
 

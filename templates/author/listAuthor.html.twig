@@ -1,0 +1,34 @@
+<h1 align="center">List authors </h1>
+
+<table align="center" border="1">
+    <thead>
+    <tr>
+        <th>Username</th>
+        <th>Email date</th>
+
+        <th>Actions</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    {% for author in authors %}
+        <tr>
+            <td>{{ author.username }}</td>
+            <td>{{ author.email}}</td>
+
+            <td>
+                <a href="{{ path('author_delete', {'id': author.id}) }}">DELETE</a>
+                <a href="{{ path('showA', {'id': author.id}) }}">SHOW</a>
+                <a href="{{ path('update', {'id': author.id}) }}">UPDATE</a>
+            </td>
+
+        </tr>
+    {% else %}
+        <tr>
+            <td>no records found</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ path('add') }}">Create new</a>

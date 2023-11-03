@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Book;
 use App\Form\BookType;
+use App\Form\ResearchType;
+use App\Form\SearchType;
 use App\Repository\BookRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -77,5 +79,94 @@ class BookController extends AbstractController
         }
         return $this->render('book/editBook.html.twig',['form'=>$form->createView()]);
 
+    }
+
+    #[route('/showBQueryBuilder',name: 'showBQueryBuilder')]
+    public function showBQueryBuilder(BookRepository $repo){
+        $list=$repo->ShowAllBook();
+        return $this->render('book/list.html.twig',['books'=>$list]);
+    }
+
+    #[route('/showBQL',name: 'showBQL')]
+    public function showBQL(BookRepository $repo){
+        $list=$repo->showALLDQL();
+        return $this->render('book/list.html.twig',['books'=>$list]);
+    }
+
+    #[Route('/book/list/search', name: 'app_book_search', methods: ['GET','POST'])]
+    public function searchBook(Request $request,BookRepository $bookRepository): Response
+    {   $book=new Book();
+        $form=$this->createForm(ResearchType::class);
+        $form->handleRequest($request);
+        dd($book);
+        if($form->isSubmitted()){
+            return $this->render('book/listSearch.html.twig', [
+                'books' => $bookRepository->showAllBooksByAuthor($book->getRef()),
+                'f'=>$form->createView()
+            ]);
+        }
+        return $this->render('book/listSearch.html.twig', [
+            'books' => $bookRepository->findAll(),
+            'f'=>$form->createView()
+        ]);
+    }
+
+//Query Builder: Question 2
+    #[Route('/book/list/search', name: 'app_book_search', methods: ['GET', 'POST'])]
+    public function searchBookByRef(Request $request, BookRepository $bookRepository): Response
+    {
+        $book = new Book();
+        $form = $this->createForm(SearchType::class, $book);
+        $form->handleRequest($request);
+        if ($form->isSubmitted()) {
+            return $this->render('book/listSearch.html.twig', [
+                'books' => $bookRepository->showAllBooksByRef($book->getRef()),
+                'f' => $form->createView()
+            ]);
+        }
+        return $this->render('book/listSearch.html.twig', [
+            'books' => $bookRepository->findAll(),
+            'f' => $form->createView()
+        ]);
+    }
+
+    #[Route('/book/list/QB', name: 'app_book_list_author_date', methods: ['GET'])]
+    public function showBooksByDateAndNbBooks(BookRepository $bookRepository): Response
+    {
+        return $this->render('book/listBookDateNbBooks.html.twig', [
+            'books' => $bookRepository->showBooksByDateAndNbBooks(10, '2023-01-01'),
+        ]);
+
+
+    }
+
+    //Query Builder: Question 5
+    #[Route('/book/list/author/update/{category}', name: 'app_book_list_author_update', methods: ['GET'])]
+    public function updateBooksCategoryByAuthor($category, BookRepository $bookRepository): Response
+    {
+        $bookRepository->updateBooksCategoryByAuthor($category);
+        return $this->render('book/listBookAuthor.html.twig', [
+            'books' => $bookRepository->findAll(),
+        ]);
+    }
+
+    //DQL: Question 1
+    #[Route('/book/NbrCategory', name: 'book_Count')]
+    function NbrCategory(BookRepository $repo)
+    {
+        $nbr = $repo->NbBookCategory();
+        return $this->render('book/showNbrCategory.html.twig', [
+            'nbr' => $nbr,
+        ]);
+    }
+
+    //DQL: Question 2
+    #[Route('/book/showBookTitle', name: 'book_showBookByTitle')]
+    function showTitleBook(BookRepository $repo)
+    {
+        $books = $repo->findBookByPublicationDate();
+        return $this->render('book/showBooks.html.twig', [
+            'books' => $books,
+        ]);
     }
 }
